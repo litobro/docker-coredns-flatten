@@ -1,0 +1,6 @@
+example.org:53 {
+    log
+    flatten example.org google.ca 1.1.1.1:53
+
+    forward . 1.1.1.1
+}

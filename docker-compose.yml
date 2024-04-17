@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  coredns:
+    image: litobro/coredns-flatten
+    container_name: coredns
+    restart: unless-stopped
+    volumes:
+      - ./conf:/etc/coredns/
+    ports:
+    - "530:53/udp"
+    - "530:53/tcp"
+    command: -conf /etc/coredns/Corefile
