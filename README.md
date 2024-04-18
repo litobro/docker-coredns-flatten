@@ -8,4 +8,4 @@ A sample docker-compose and Corefile are included which provide minimal function
 
 ## TODO
 - Write unit tests
-- CI/CD pipeline to track and autobuild the latest version of CoreDNS and Flatten
+- Update CI/CD to automatically update the last build version of CoreDNS
