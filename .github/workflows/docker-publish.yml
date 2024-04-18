@@ -61,7 +61,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
             type=raw,value=nightly,enable=${{ github.ref == 'refs/heads/main' }}
 
       # Build and push Docker image with Buildx (don't push on PR)
