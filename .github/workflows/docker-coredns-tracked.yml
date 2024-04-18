@@ -36,6 +36,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -m "Update CoreDNS version to ${{ steps.coredns.outputs.version }}" -a
+        git push
 
     - name: Login to DockerHub
       uses: docker/login-action@v1
