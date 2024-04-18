@@ -1,0 +1,53 @@
+name: Build on CoreDNS Updates
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+env:
+  IMAGE_NAME: litobro/coredns-flatten
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+
+    - name: Get latest CoreDNS version
+      id: coredns
+      run: |
+        echo "::set-output name=version::$(curl -s https://api.github.com/repos/coredns/coredns/releases/latest | jq -r .tag_name)"
+
+    - name: Check if version has changed
+      id: check-version
+      run: |
+        if [[ "${{ steps.coredns.outputs.version }}" != "$(cat .coredns_version)" ]]; then
+          echo "::set-output name=changed::true"
+          echo "${{ steps.coredns.outputs.version }}" > .coredns_version
+        else
+          echo "::set-output name=changed::false"
+        fi
+
+    - name: Commit changes
+      if: steps.check-version.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Update CoreDNS version to ${{ steps.coredns.outputs.version }}" -a
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN_RW }}
+
+    - name: Build and push Docker image
+      if: steps.check-version.outputs.changed == 'true'
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ env.IMAGE_NAME }}:${{ steps.coredns.outputs.version }}
+          ${{ env.IMAGE_NAME }}:latest
