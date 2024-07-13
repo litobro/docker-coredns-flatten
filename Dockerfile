@@ -5,7 +5,7 @@ LABEL maintainer="Thomas Dang"
 WORKDIR /go/src/coredns
 
 # Install curl and jq to parse JSON from GitHub API
-RUN apt-get update && apt-get install -y curl jq
+RUN apt-get update && apt-get install -y curl jq ca-certificates
 
 # Get the latest CoreDNS release tag from GitHub API and download src
 RUN LATEST_RELEASE=$(curl -s "https://api.github.com/repos/coredns/coredns/releases/latest" | jq -r .tag_name) && \
@@ -24,6 +24,7 @@ FROM scratch
 
 # Copy the CoreDNS binary from the builder stage
 COPY --from=builder /go/src/coredns/coredns /coredns
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Expose the DNS port
 EXPOSE 53 53/udp
