@@ -5,7 +5,7 @@ LABEL maintainer="Thomas Dang"
 WORKDIR /go/src/coredns
 
 # Install curl and jq to parse JSON from GitHub API
-RUN apt-get update && apt-get install -y curl jq ca-certificates
+RUN apt-get update && apt-get install -y curl jq
 
 # Get the latest CoreDNS release tag from GitHub API and download src
 RUN LATEST_RELEASE=$(curl -s "https://api.github.com/repos/coredns/coredns/releases/latest" | jq -r .tag_name) && \
@@ -18,6 +18,10 @@ RUN sed -i '/cache:cache/a flatten:github.com/litobro/flatten' plugin.cfg
 
 # Build CoreDNS
 RUN make
+
+# We need to get certificates for TLS forwarding
+FROM alpine:latest as certs
+RUN apk --update add ca-certificates
 
 # Use scratch for a minimal production image
 FROM scratch
